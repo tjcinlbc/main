@@ -1,0 +1,70 @@
+#Install-Module Microsoft.Graph -Scope CurrentUser
+#Import-Module Microsoft.Graph.Users
+#Connect-Graph -Scopes User.ReadWrite.All, Organization.Read.All
+# Import users from CSV file
+$users = Import-Csv -Path "C:\temp\lastusers.csv"
+foreach ($user in $users) {
+    $userPrincipalName = $user."User Principal Name"
+    
+    # Skip if User Principal Name is empty
+    if ([string]::IsNullOrWhiteSpace($userPrincipalName)) {
+        Write-Warning "User Principal Name is empty. Skipping..."
+        continue
+    }
+    
+    # Initialize a flag to indicate if the user exists
+    $userExists = $false
+    
+    # Check with the original UPN
+    try {
+        $existingUser = Get-MgUser -UserId $userPrincipalName -ErrorAction Stop
+        if ($existingUser) {
+            Write-Host "User $userPrincipalName already exists. Skipping..."
+            $userExists = $true
+        }
+    } catch {
+        # User not found with original UPN, continue to check UPN without "062."
+    }
+
+    # Skip user creation if any variation of UPN exists
+    if ($userExists) {
+        continue
+    }
+
+    # Sanitize and validate displayName
+    if ($null -eq $user."Display Name") {
+        Write-Warning "Display Name is null for ${userPrincipalName}. Using UPN as displayName."
+        $displayName = $userPrincipalName.Split('@')[0] # Use part of the UPN as a fallback displayName
+    } else {
+        $displayName = $user."Display Name".Trim() -replace '[^\w\s]', ''
+        
+        # Check if displayName is still invalid or empty after sanitization
+        if ([string]::IsNullOrWhiteSpace($displayName)) {
+            Write-Warning "Invalid or empty displayName for ${userPrincipalName}. Using UPN as displayName."
+            $displayName = $userPrincipalName.Split('@')[0] # Use part of the UPN as a fallback displayName
+        }
+    }
+    # Split displayName into firstName
+    $displayNameParts = $displayName -split ' '
+    $firstName = $displayNameParts[0]
+    # Generate a secure password
+    $password = "YourSecurePasswordHere!" # Replace this with a method to generate secure passwords
+    # Prepare user parameters
+    $params = @{
+        accountEnabled = $true
+        displayName = $displayName
+        mailNickname = $firstName
+        userPrincipalName = $userPrincipalName
+        passwordProfile = @{
+            forceChangePasswordNextSignIn = $true
+            password = $password
+        }
+    }
+
+    try {
+            New-MgUser -BodyParameter $params
+            Write-Host "Successfully created user: $displayName"
+        } catch {
+            Write-Warning "Failed to create user ${userPrincipalName}: $_"
+        }
+}

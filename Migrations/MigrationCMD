@@ -1,0 +1,6 @@
+#DNS Check Nameservers
+nslookup
+set type=SOA
+example.com
+
+dig example.com NS

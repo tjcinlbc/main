@@ -1,0 +1,1 @@
+Set-Mailbox william.brakebill@otratl.onmicrosoft.com -ProhibitSendQuota 100GB -ProhibitSendReceiveQuota 100GB -IssueWarningQuota 100GB

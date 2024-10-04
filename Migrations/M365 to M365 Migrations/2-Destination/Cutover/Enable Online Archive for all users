@@ -1,0 +1,13 @@
+# Connect to Exchange Online
+Connect-ExchangeOnline
+
+# Get all mailboxes with online archiving disabled
+# Assuming 'None' represents mailboxes without an enabled archive. Adjust the filter as necessary.
+$Mailboxes = Get-Mailbox -ResultSize Unlimited -Filter "ArchiveStatus -eq 'None'"
+
+# Enable online archiving for each mailbox
+foreach ($Mailbox in $Mailboxes) {
+    Enable-Mailbox -Identity $Mailbox.Identity -Archive
+}
+
+Write-Host "Processing completed."

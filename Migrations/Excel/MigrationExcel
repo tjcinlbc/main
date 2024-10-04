@@ -1,0 +1,2 @@
+
+=SUBSTITUTE(A1,"@intereum.onmicrosoft.com","@corpconcepts.onmicrosoft.com")

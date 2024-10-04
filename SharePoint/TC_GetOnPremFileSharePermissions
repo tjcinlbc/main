@@ -1,0 +1,13 @@
+
+
+icacls d:data /save ntfsperms.txt /t /c
+
+Use this command to backup NTFS permissions:
+ 
+icacls d:data /save ntfsperms.txt /t /c
+ 
+The /T switch allows it to get subfolder permissions too. The /C switch allows it to continue even if errors are encountered (although errors will still be displayed).
+ 
+Use this command to restore them:
+ 
+icacls d: /restore ntfsperms.txt

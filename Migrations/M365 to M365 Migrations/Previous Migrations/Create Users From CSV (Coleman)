@@ -1,0 +1,112 @@
+#Install-Module Microsoft.Graph -Scope CurrentUser
+#Import-Module Microsoft.Graph.Users
+#Connect-Graph -Scopes User.ReadWrite.All, Organization.Read.All
+
+# Import users from CSV file
+$users = Import-Csv -Path "C:\temp\Coleman-users_6_12_2024 4_46_34 PM.csv"
+
+foreach ($user in $users) {
+    $userPrincipalName = $user."User Principal Name"
+    
+    # Skip if User Principal Name is empty
+    if ([string]::IsNullOrWhiteSpace($userPrincipalName)) {
+        Write-Warning "User Principal Name is empty. Skipping..."
+        continue
+    }
+    
+    # Create a modified UPN by removing "062.onmicrosoft"
+    $modifiedUPN = $userPrincipalName -replace "062\.onmicrosoft", "onmicrosoft"
+    
+    # Create a UPN without the "062." prefix for additional check
+    $upnWithout062 = $userPrincipalName -replace "062\.", ""
+    
+    # Initialize a flag to indicate if the user exists
+    $userExists = $false
+    
+    # Check with the original UPN
+    try {
+        $existingUser = Get-MgUser -UserId $userPrincipalName -ErrorAction Stop
+        if ($existingUser) {
+            Write-Host "User $userPrincipalName already exists. Skipping..."
+            $userExists = $true
+        }
+    } catch {
+        # User not found with original UPN, continue to check modified UPN
+    }
+    
+    # Check with the modified UPN if the user hasn't been found yet
+    if (-not $userExists) {
+        try {
+            $existingUser = Get-MgUser -UserId $modifiedUPN -ErrorAction Stop
+            if ($existingUser) {
+                Write-Host "User with modified UPN $modifiedUPN already exists. Skipping..."
+                $userExists = $true
+            }
+        } catch {
+            # User not found with modified UPN, continue to check UPN without "062."
+        }
+    }
+    
+    # Check with the UPN without "062." if the user hasn't been found yet
+    if (-not $userExists) {
+        try {
+            $existingUser = Get-MgUser -UserId $upnWithout062 -ErrorAction Stop
+            if ($existingUser) {
+                Write-Host "User with UPN $upnWithout062 already exists. Skipping..."
+                $userExists = $true
+            }
+        } catch {
+            # User not found with any UPN variation, proceed to create the user
+        }
+    }
+    
+    # Skip user creation if any variation of UPN exists
+    if ($userExists) {
+        continue
+    }
+    
+    # Skip user creation if either UPN exists
+    if ($userExists) {
+        continue
+    }
+    
+    # Sanitize and validate displayName
+    if ($null -eq $user."Display Name") {
+        Write-Warning "Display Name is null for ${userPrincipalName}. Using UPN as displayName."
+        $displayName = $userPrincipalName.Split('@')[0] # Use part of the UPN as a fallback displayName
+    } else {
+        $displayName = $user."Display Name".Trim() -replace '[^\w\s]', ''
+        
+        # Check if displayName is still invalid or empty after sanitization
+        if ([string]::IsNullOrWhiteSpace($displayName)) {
+            Write-Warning "Invalid or empty displayName for ${userPrincipalName}. Using UPN as displayName."
+            $displayName = $userPrincipalName.Split('@')[0] # Use part of the UPN as a fallback displayName
+        }
+    }
+
+    # Split displayName into firstName
+    $displayNameParts = $displayName -split ' '
+    $firstName = $displayNameParts[0]
+
+    # Generate a secure password
+    $password = "YourSecurePasswordHere!" # Replace this with a method to generate secure passwords
+
+    # Prepare user parameters
+    $params = @{
+        accountEnabled = $true
+        displayName = $displayName
+        mailNickname = $firstName
+        userPrincipalName = $userPrincipalName
+        passwordProfile = @{
+            forceChangePasswordNextSignIn = $true
+            password = $password
+        }
+    }
+    
+    try {
+        New-MgUser -BodyParameter $params
+        Write-Host "Successfully created user: $displayName"
+    } catch {
+        Write-Warning "Failed to create user ${userPrincipalName}: $_"
+    }
+}

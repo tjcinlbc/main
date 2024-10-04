@@ -1,0 +1,33 @@
+
+# Install-Module -Name ExchangeOnlineManagement -Force
+# Connect-ExchangeOnline
+# Connect-ExchangeOnline
+
+# Import the CSV file containing the user data
+$usersData = Import-Csv -Path "C:\Temp\Bellecci-users_new1.csv"
+Write-Host "CSV data loaded."
+
+# Loop through each user in the CSV
+foreach ($user in $usersData) {
+    $principalNames = @($user.UserPrincipalName, $user.UserPrincipalName1, $user.UserPrincipalName2, $user.UserPrincipalName3)
+    # Dynamically build the list of email aliases from the user row using "email" instead of "SMTP"
+    $emailAliases = @($user.email1, $user.email2, $user.email3, $user.email4, $user.email5, $user.email6)
+    
+    Write-Host "Processing $($user.UserPrincipalName)..."
+
+    foreach ($principalName in $principalNames) {
+        if ($principalName) {
+            try {
+                # Check if the mailbox exists
+                Get-Mailbox -Identity $principalName -ErrorAction Stop
+                # Add the dynamically read email aliases
+                Set-Mailbox -Identity $principalName -EmailAddresses @{add=$emailAliases}
+                Write-Host "Added email aliases for $principalName."
+                break # Exit the loop if aliases were successfully added
+            } catch {
+                Write-Host "Failed to add aliases for $principalName. Error: $_"
+            }
+        }
+    }
+}
+Write-Host "Script execution completed."

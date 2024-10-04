@@ -1,0 +1,32 @@
+MCI-DATA01_MCELEC_Warehouse
+MCI-Data01_McElroysInc_HR
+MCI-DATA01_MCELEC_MCE Utilities
+MCI-DATA01_MCELEC_!Temp
+MCI-DATA01_MCELEC_Timilon Production
+MCI-DATA01_MCELEC_WennSoft
+MCI-Data01_McElroysInc_Commercial Construction
+MCI-DATA01_MCELEC_Safety & License
+MCI-DATA01_MCELEC_Service
+MCI-Data01_McElroysInc_!Temp
+MCI-DATA01_MCELEC_Archive
+MCI-Data01_McElroysInc_WennSoft
+MCI-Data01_McElroysInc_Global
+MCI-DATA01_MCELEC_JOB BIDDING Template
+MCI-DATA01_MCELEC_UL Inspection Reports
+MCI-DATA01_MCELEC_COI & MSA
+MCI-Data01_McElroysInc_Comm HVAC Service
+MCI-DATA01_MCELEC_Accounting
+MCI-Data01_McElroysInc_Plumbing Service
+MCI-Data01_McElroysInc_Accounting
+MCI-Data01_McElroysInc_Warehouse
+MCI-Data01_McElroysInc_Safety
+MCI-DATA01_MCELEC_Commercial Construction
+MCI-DATA01_MCELEC_Marketing
+MCI-Data01_McElroysInc_Res HVAC Service
+MCI-DATA01_MCELEC_Enclosures
+MCI-DATA01_MCELEC_Global
+MCI-DATA01_MCELEC_HR
+MCI-DATA01_MCELEC_Residential
+MCI-Data01_McElroysInc_Marketing
+MCI-DATA01_MCELEC_023 540
+MCI-Data01_McElroysInc_CSR
